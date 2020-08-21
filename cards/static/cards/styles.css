@@ -1,0 +1,8 @@
+.card-footer {
+    padding: .1rem 1.25rem;
+    font-size: .8rem;
+}
+
+.card-comment {
+    white-space: pre-wrap;
+}

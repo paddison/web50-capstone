@@ -1,0 +1,25 @@
+<div class='container'>
+    <h1>
+        Your cards
+    </h1>
+    <h5>
+        ({{ cards.count }} total)
+    </h5>
+    <div class='row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5'>
+        {% for card in cards %}
+            <div class='col mb-4'>
+                <div class='card text-center h-100'>
+                    <div class='card-header'>{{ card.english }}</div>
+                    <div class='card-body'>
+                        <h5 class='card-title'>{{ card.character }}</h5>
+                        <p class='card-text'>{{ card.pinyin }}</p>
+                        <p class='card-text text-left card-comment'>{{ card.comment }}</p>
+                    </div>
+                    <div class="card-footer text-muted">{{ card.created_on }}</div>
+                </div>
+            </div>
+        {% empty %}
+            <p>You don't have any cards yet.</p>
+        {% endfor%}
+    </div>
+</div>
