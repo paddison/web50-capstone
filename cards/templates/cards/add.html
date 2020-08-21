@@ -1,4 +1,36 @@
 {% extends 'cards/layout.html' %}
 {% block body %}
-    
+    <h1 class='text-center'>
+        Add a new card
+    </h1>
+    {% if error %}
+        <p class='alert alert-danger'>{{ error }}</p>
+    {% elif success %}
+        <p class='alert alert-success'>{{ success }}</p>
+    {% endif %}
+    <div class='container'>
+        <div class='row justify-content-center'>
+            <div class='card col-lg-7'>
+                <form class='card-body' method="POST" action='{% url "add" %}'>
+                    {% csrf_token %}
+                    <div class='form-group'>
+                        <input class='form-control' placeholder="English Word" name='english' required value='{{ form.english }}'>
+                    </div>
+                    <div class='form-group'>
+                        <input class='form-control' placeholder="Chinese Character (漢字)" name='character' required value='{{ form.character }}'>
+                    </div>
+                    <div class='form-group'>
+                        <input class='form-control' placeholder="Pronounciation in Pinyin" name='pinyin' required value='{{ form.pinyin }}'>
+                    </div>
+                    <div class='form-group'>
+                        <textarea class='form-control' placeholder="Add comments or example sentences here (optional)" name='comment' rows='3'>{{ form.comment }}</textarea>
+                    </div>
+                    <button type="submit" class='btn btn-primary' name='save'>Add Card</button>
+                    <button type="submit" class='btn btn-info' name='add_another'>Save and add another</button>
+                </form>
+            </div>
+            
+            
+        </div>
+    </div>
 {% endblock %}
