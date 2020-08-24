@@ -20,6 +20,17 @@ class Card(models.Model):
     def __str__(self):
         return f'{self.english} - {self.character}' 
 
+    def serialize(self):
+        return ({
+            'id': self.id,
+            'english': self.english,
+            'character': self.character,
+            'pinyin': self.pinyin,
+            'comment': self.comment,
+            'created_on': self.created_on,
+            'created_by': self.created_by.username,
+        })
+
 class Deck(models.Model):
     name = models.CharField(max_length=45)
     description = models.CharField(max_length=255)
@@ -35,6 +46,15 @@ class Deck(models.Model):
 
     def __str__(self):
         return f'{self.created_by}\'s {self.name} Deck'
+
+    def serialize(self):
+        return ({
+            'id': self.id,
+            'name': self.name,
+            'description': self.description,
+            'created_by': self.created_by.username,
+            'created_on': self.created_on
+        })
 
 class CardsOnDeck(models.Model):
     card = models.ForeignKey(Card, on_delete=models.CASCADE, related_name='decks')

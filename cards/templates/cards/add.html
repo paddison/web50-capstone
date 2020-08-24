@@ -3,11 +3,6 @@
     <h1 class='text-center'>
         Add a new card
     </h1>
-    {% if error %}
-        <p class='alert alert-danger'>{{ error }}</p>
-    {% elif success %}
-        <p class='alert alert-success'>{{ success }}</p>
-    {% endif %}
     <div class='container'>
         <div class='row justify-content-center'>
             <div class='card col-lg-7'>
@@ -28,9 +23,7 @@
                     <button type="submit" class='btn btn-primary' name='save'>Add Card</button>
                     <button type="submit" class='btn btn-info' name='add_another'>Save and add another</button>
                 </form>
-            </div>
-            
-            
+            </div>          
         </div>
     </div>
 {% endblock %}

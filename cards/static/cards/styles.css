@@ -6,3 +6,7 @@
 .card-comment {
     white-space: pre-wrap;
 }
+
+#deck-form {
+    display: none;
+}

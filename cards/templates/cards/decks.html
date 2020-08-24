@@ -1,0 +1,43 @@
+{% extends 'cards/layout.html' %}
+{% load static %}
+
+
+{% block body %}
+    <h1>
+        Your Decks:
+    </h1>
+    <div class='container-fluid'>
+        <div class='row'>
+            <div class='col-3'>
+                <ul class='nav flex-column'>
+                    {% for deck in decks %}
+                        <li class='nav-item'>
+                            <a class='nav-link decks' href='#' data-id='{{ deck.id }}'>
+                                {{ deck.name }}
+                            </a>
+                        </li>
+                    {% endfor %}
+                </ul>
+                <button class='btn btn-primary' id='show-deck-form'>Create new Deck</button>
+                <form id='deck-form' method="POST" action="{% url 'decks' %}">
+                    {% csrf_token %}
+                    <div class='form-group '>
+                        <label for='newDeckName' style='display: none;'></label>
+                        <input class="form-control" id="newDeckName" name='deck-name' placeholder="Enter Deck Name">
+                    </div>
+                    <div class='form-group'>
+                        <textarea class='form-control' placeholder="Describe your Deck (optional)" name='deck-description' rows='3'>{{ form.description }}</textarea>
+                    </div>
+                    <button type='submit' class='btn btn-primary mx-3' id='add-deck'>Create</button>
+                </form>
+            </div>
+            <div class='card-container col-9'></div>
+        </div>
+
+    </div>
+
+{% endblock %}
+
+{% block scripts %}
+    <script src="{% static 'cards/deck_view_util.js' %}"></script>
+{% endblock %}

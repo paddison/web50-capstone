@@ -2,7 +2,8 @@ import re
 
 from django.shortcuts import render
 from django.contrib.auth import authenticate, login, logout
-from django.http import HttpResponse, HttpResponseRedirect
+from django.contrib.auth.decorators import login_required
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import render
 from django.urls import reverse
 from django.db import IntegrityError
@@ -74,6 +75,37 @@ def add(request):
             })
 
     return render(request, 'cards/add.html')
+
+def decks(request):
+    userDecks = Deck.objects.filter(created_by=request.user)
+
+    if request.method == "POST":
+        deckName = request.POST['deck-name']
+        if Deck.objects.filter(name=deckName, created_by=request.user).exists():
+            return render(request, 'cards/decks.html', {
+                'decks': userDecks,
+                'error': 'Deck with the same name already exists'
+            })
+        else:
+            description = request.POST['deck-description']
+            deck = Deck(name=deckName, description=description, created_by=request.user)
+            deck.save()
+            userDecks = Deck.objects.filter(created_by=request.user)
+            return render(request, 'cards/decks.html', {
+                'decks': userDecks,
+                'success': f'Deck { deck.name } created'
+            })
+
+    return render(request, 'cards/decks.html', {
+        'decks': userDecks
+    })
+
+@login_required
+def get_cards(request, deck_id):
+    deck = Deck.objects.get(pk=deck_id).serialize()
+    cards = Card.objects.filter(decks__deck__id=deck_id)
+    deck['cards'] = [card.serialize() for card in cards]
+    return JsonResponse(deck, safe=False)
 
 def login_view(request):
     if request.method == 'POST':
