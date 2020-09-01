@@ -1,0 +1,24 @@
+{% extends 'cards/layout.html' %}
+{% load static %}
+
+{% block body %}
+    <div class='container'>
+        <h1>
+            Choose Cards to add to {{ deck.name }}.
+        </h1>
+        <input class='form-control filter-cards mb-3' type="text" placeholder="Search Cards">
+        <div class='list-group'>
+            {% for card in cards %}
+                <div class='list-group-item'>
+                    <button class='btn btn-outline-primary btn-add-to-deck' type="button" data-card='{{ card.id }}' data-deck='{{ deck.id }}'>Add</button>
+                    <inline>{{ card }}</inline>         
+                </div>
+            {% endfor %} 
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block scripts %}
+    <script src="{% static 'cards/filter_cards.js' %}"></script>
+{% endblock %}

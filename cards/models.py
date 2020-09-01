@@ -15,7 +15,8 @@ class Card(models.Model):
     comment = models.CharField(max_length=255)
     created_on = models.DateField(auto_now_add=True)
     due = models.DateField(auto_now_add=True)
-    created_by = models.ForeignKey(User, on_delete=models.SET(get_sentinel_user), related_name='cards')
+    created_by = models.ForeignKey(User, on_delete=models.SET(get_sentinel_user), related_name='created_cards')
+    user = models.ForeignKey(User, on_delete=models.SET(get_sentinel_user), related_name='cards')
 
     def __str__(self):
         return f'{self.english} - {self.character}' 
@@ -34,8 +35,9 @@ class Card(models.Model):
 class Deck(models.Model):
     name = models.CharField(max_length=45)
     description = models.CharField(max_length=255)
-    created_by = models.ForeignKey(User, on_delete=models.SET(get_sentinel_user), related_name='decks')
+    created_by = models.ForeignKey(User, on_delete=models.SET(get_sentinel_user), related_name='created_decks')
     created_on = models.DateField(auto_now_add=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='decks')
 
     class Meta:
         

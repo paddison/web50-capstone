@@ -1,8 +1,10 @@
 import re
+import json
 
 from django.shortcuts import render
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import render
 from django.urls import reverse
@@ -13,7 +15,7 @@ from .models import User, Card, Deck, CardsOnDeck
 # Create your views here.
 def index(request):
     try:
-        cards = Card.objects.filter(decks__deck__name='All Cards', decks__deck__created_by=request.user)
+        cards = Card.objects.filter(user=request.user)
     except:
         cards = []
     return render(request, 'cards/index.html', {
@@ -44,17 +46,10 @@ def add(request):
             })
 
         # create a new card
-        card = Card(english=english, character=character, pinyin=pinyin, comment=comment, created_by=request.user)
-
-        # if this is this users first card, create a new 'all cards' deck for him
-        if not Deck.objects.filter(created_by=request.user, name='All Cards').exists():
-            Deck(created_by=request.user, name='All Cards', description='All your cards').save()
-        
-        allCards = Deck.objects.get(created_by=request.user, name='All Cards')
+        card = Card(english=english, character=character, pinyin=pinyin, comment=comment, created_by=request.user, user=request.user)
 
         try:
             card.save()
-            CardsOnDeck(card=card, deck=allCards).save()
             if 'add_another' in request.POST:
                 return render(request, 'cards/add.html', {
                     'success': f'Card: {card} added succesfully'
@@ -77,20 +72,20 @@ def add(request):
     return render(request, 'cards/add.html')
 
 def decks(request):
-    userDecks = Deck.objects.filter(created_by=request.user)
+    userDecks = Deck.objects.filter(user=request.user)
 
     if request.method == "POST":
         deckName = request.POST['deck-name']
-        if Deck.objects.filter(name=deckName, created_by=request.user).exists():
+        if Deck.objects.filter(name=deckName, user=request.user).exists():
             return render(request, 'cards/decks.html', {
                 'decks': userDecks,
                 'error': 'Deck with the same name already exists'
             })
         else:
             description = request.POST['deck-description']
-            deck = Deck(name=deckName, description=description, created_by=request.user)
+            deck = Deck(name=deckName, description=description, created_by=request.user, user=request.user)
             deck.save()
-            userDecks = Deck.objects.filter(created_by=request.user)
+            userDecks = Deck.objects.filter(user=request.user)
             return render(request, 'cards/decks.html', {
                 'decks': userDecks,
                 'success': f'Deck { deck.name } created'
@@ -101,11 +96,41 @@ def decks(request):
     })
 
 @login_required
-def get_cards(request, deck_id):
-    deck = Deck.objects.get(pk=deck_id).serialize()
-    cards = Card.objects.filter(decks__deck__id=deck_id)
-    deck['cards'] = [card.serialize() for card in cards]
-    return JsonResponse(deck, safe=False)
+@csrf_exempt
+def add_to_deck(request, deck_id):
+    deck = Deck.objects.get(pk=deck_id)
+    if request.method == 'PUT':
+        card_id = json.loads(request.body)['card']
+        card = Card.objects.get(pk=card_id)
+        addedCard = CardsOnDeck(card=card, deck=deck)
+        addedCard.save()
+        return JsonResponse({'message': 'Added'})
+
+    cards = Card.objects.exclude(decks__deck__id=deck_id)
+
+
+
+    return render(request, 'cards/add_to_deck.html', {
+        'deck': deck,
+        'cards': cards
+    })
+
+@login_required
+def get_cards(request, deck_id=None):
+    if deck_id:
+        deck = Deck.objects.get(pk=deck_id).serialize()
+        cards = Card.objects.filter(decks__deck__id=deck_id)
+        deck['cards'] = [card.serialize() for card in cards]
+        return JsonResponse(deck, safe=False)
+    else:
+        print('requested all cards')
+        cards = Card.objects.filter(user=request.user)
+        deck = {
+            'name': 'All Cards',
+            'description': 'All your cards',
+            'cards': [card.serialize() for card in cards]
+        }
+        return JsonResponse(deck, safe=False)
 
 def login_view(request):
     if request.method == 'POST':

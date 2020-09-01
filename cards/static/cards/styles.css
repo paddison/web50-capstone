@@ -10,3 +10,7 @@
 #deck-form {
     display: none;
 }
+
+.cards-to-deck {
+    background: white !important;
+}
